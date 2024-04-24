@@ -2,15 +2,20 @@ import { createAsyncThunk,createSlice } from '@reduxjs/toolkit'
 // Add the necessary async logic inside a thunk function to handle the API call and data fetching. Thunk functions allow you to write async logic in Redux actions
 export const fetchSnippet = createAsyncThunk(
     '/',
-    async (UniqueId) => {
-        const url = `http://localhost:4000/api/v1/${UniqueId}`; 
+    async (UniqueId) => { 
         try {
-            const res = await fetch(url);
+            const res = await fetch(`https://codeshare-7q0c.onrender.com/api/v1/${UniqueId}`,{
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            }
+            });
             const response = await res.json();
             // console.log(response);
             return response;
         } catch (error) {
-            console.log("Error in fetching the data regarding the countries", error);
+            console.log("Error in fetching the data regarding the snippet", error);
             throw error;
         }
     }
@@ -19,19 +24,15 @@ export const fetchSnippet = createAsyncThunk(
 export const addSnippet = createAsyncThunk('snippet/add',
     async (snippetData) => {
         try {
-            const res = await fetch('http://localhost:4000/api/v1/', {
+            const res = await fetch('https://codeshare-7q0c.onrender.com/api/v1/', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json"
                 },
                 body: JSON.stringify(snippetData)
-            });
-            if (!res.ok) {
-                throw new Error('Failed to add snippet');
-            }
-            const response = await res.json();
-            return response;
+            }).then((res)=>res.json());
+            return res;
         } catch (error) {
             console.error("Error in adding the snippet:", error);
             throw error;
@@ -42,7 +43,7 @@ export const addSnippet = createAsyncThunk('snippet/add',
 export const updateSnippet = createAsyncThunk('snippet/update', async({ UniqueId, snippetData })=>{
     try{
         console.log(JSON.stringify(snippetData))
-        const res = await fetch(`http://localhost:4000/api/v1/${UniqueId}`,{
+        const res = await fetch(`https://codeshare-7q0c.onrender.com/api/v1/${UniqueId}`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -65,6 +66,7 @@ export const Snippet = createSlice({
         Code:null,
         theme:null,
         UniqueId:null,
+        error:false
         
     },
     reducers:{
@@ -84,30 +86,37 @@ export const Snippet = createSlice({
                 state.LangType=LanguageType
                 state.theme = theme
                 state.UniqueId=UniqueId
-                // console.log(action.payload.SuccessResponse.data[0].LanguageType)
+                // console.log(action.payload.SuccessResponse.data[0].Code)
                 // console.log(LanguageType,Code,theme)
             })
             .addCase(fetchSnippet.rejected, (state) => {
                 state.loading = false;
+                state.error=true
             })
             .addCase(addSnippet.pending, (state) => {
                 state.loading = true;
-                state.error = null;
             })
             .addCase(addSnippet.fulfilled, (state, action) => {
-                const {Code,LanguageType,theme,UniqueId}=action.payload.SuccessResponse.data
-                console.log(action.payload.SuccessResponse.data)
-                state.loading = false;
-                state.Code=Code
-                state.LangType=LanguageType
-                state.theme = theme
-                state.UniqueId=UniqueId
-                state.result = action.payload;
-                console.log(UniqueId,state.UniqueId);
+                // console.log(action.payload.SuccessResponse)
+                if(action.payload.SuccessResponse!==undefined){
+                    const {Code,LanguageType,theme,UniqueId}=action.payload.SuccessResponse.data
+                    console.log(action.payload.SuccessResponse.data)
+                    state.loading = false;
+                    state.Code=Code
+                    state.LangType=LanguageType
+                    state.theme = theme
+                    state.UniqueId=UniqueId
+                    state.result = action.payload;
+                }
+                else {
+                    alert("Error in adding Snippet")
+                }
+                // console.log(action.payload);
+                // console.log(UniqueId,state.UniqueId);
             })
             .addCase(addSnippet.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.error.message;
+                state.error = action.payload;
             })
             .addCase(updateSnippet.pending, (state) => {
                 state.loading = true;

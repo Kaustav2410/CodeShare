@@ -26,21 +26,25 @@ export const CodeEditior = () => {
     const [languageType, setLanguageType] = useState('html');
     const [theme,setTheme] = useState('light');
     const [isDisabled, setIsDisabled] = useState(false);
-    const LangType = useSelector((state) => state.SnippetData.LangType);
     const Code = useSelector((state) => state.SnippetData.Code);
+    const LangType = useSelector((state) => state.SnippetData.LangType);
     const currentTheme = useSelector((state)=>state.SnippetData.theme)
     const UniqueId = useSelector((state)=>state.SnippetData.UniqueId)
-    const [currentCode,setCurrentCode] = useState('');
+    const [currentCode,setCurrentCode] = useState(null);
     useEffect(() => {
+        if (LangType !== null) setLanguageType(LangType);
+        if (currentTheme !== null) setTheme(currentTheme);
+    
+        // Set currentCode based on the fetched code or the default HTML string
         if (Code !== null) {
             setCurrentCode(Code);
-        } else {
+        } else {     
             setCurrentCode(`<html>
                 <head>
-                    <title>HTML Sample</title>
+                <title>HTML Sample</title>
                     <meta http-equiv="X-UA-Compatible" content="IE=edge">
                     <style type="text/css">
-                        h1 {
+                    h1 {
                             color: #CCA3A3;
                         }
                     </style>
@@ -49,26 +53,21 @@ export const CodeEditior = () => {
                     </script>
                 </head>
                 <body>
-                    <h1>Heading No.1</h1>
-                    <input disabled type="button" value="Click me" />
+                <h1>Heading No.1</h1>
+                <input disabled type="button" value="Click me" />
                 </body>
-            </html>`);
+                </html>`);
         }
-    }, [Code]);
-  useEffect(() => {
-      if(LangType!==null) setLanguageType(LangType);
-      if(currentTheme!==null){setTheme(currentTheme)}
-    }, [LangType,currentTheme]);  
-     
+    }, [LangType, currentTheme, Code]);   
 
     useEffect(()=>{
         if(UniqueId!==null && LangType===languageType && Code===currentCode && currentTheme===theme){
-            setIsDisabled(true)
+            setIsDisabled(true) 
         } 
         else {
             setIsDisabled(false);  
         } 
-        console.log(currentCode,Code,UniqueId,languageType,LangType);
+        // console.log(currentCode,Code,UniqueId,languageType,LangType);
     },[currentCode,languageType,LangType,Code,UniqueId,currentTheme,theme]) 
 
     function handleLanguageType(value) {
@@ -81,7 +80,7 @@ export const CodeEditior = () => {
 
     function handleEditorChange(value, event) {
         console.log('here is the current model value:', value);
-        setCurrentCode(value);
+        setCurrentCode(value); 
       }
 
     function handleSnippet(e) {
@@ -116,7 +115,9 @@ export const CodeEditior = () => {
                 // history.push(`/${uniqueId}`);
                 
                 navigate(`/${uniqueId}`)
-            });
+            }).catch((err)=>{
+                alert("Cant redirect since snippet was not created")
+            }); 
         }
     }
     return (

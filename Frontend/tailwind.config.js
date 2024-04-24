@@ -30,6 +30,10 @@ module.exports = {
         'blue':'#406AFF',
         'violet':'#b787f5',
         'dark_violet':'#743ee4'
+      },
+      backgroundImage: {
+        'hero-pattern': "url('/src/media/Hero-Background-notecode@2x.png')",
+        
       }
     },
   },
