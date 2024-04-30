@@ -43,7 +43,7 @@ export const addSnippet = createAsyncThunk('snippet/add',
 export const updateSnippet = createAsyncThunk('snippet/update', async({ UniqueId, snippetData })=>{
     try{
         console.log(JSON.stringify(snippetData))
-        const res = await fetch(`https://codeshare-7q0c.onrender.com/api/v1/${UniqueId}`,{
+        await fetch(`https://codeshare-7q0c.onrender.com/api/v1/${UniqueId}`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -80,14 +80,23 @@ export const Snippet = createSlice({
                 state.loading = true;
             })
             .addCase(fetchSnippet.fulfilled, (state, action) => {
-                const {LanguageType,Code,theme,UniqueId}=action.payload.SuccessResponse.data[0]
+                // console.log(action.payload.SuccessResponse.data.length)
+                if(action.payload.SuccessResponse.data.length!=0){
+                    const {LanguageType,Code,theme,UniqueId}=action.payload.SuccessResponse.data[0]
                 state.loading=false;
                 state.Code=Code
                 state.LangType=LanguageType
                 state.theme = theme
                 state.UniqueId=UniqueId
-                // console.log(action.payload.SuccessResponse.data[0].Code)
                 // console.log(LanguageType,Code,theme)
+                }
+                else{
+                    state.loading=false;
+                    state.Code=null
+                    state.LangType=null
+                    state.theme = null
+                    state.UniqueId=null
+                }
             })
             .addCase(fetchSnippet.rejected, (state) => {
                 state.loading = false;

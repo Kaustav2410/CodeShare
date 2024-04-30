@@ -1,11 +1,13 @@
-import React, { useEffect,useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {useDispatch, useSelector} from 'react-redux'
-import Editor,{loader} from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
 import { addSnippet, updateSnippet } from '../Store/Slices/snippetSlice';
 import {useNavigate} from 'react-router-dom'
 import shareIcon from '../media/Share.svg'
 import dropDown from '../media/down arrow.svg'
 import link from '../media/link.svg'
+import { fetchSnippet } from '../Store/Slices/snippetSlice';
+import { useParams } from 'react-router-dom';
 // The monaco editor fails to initialize issue
 // Check if there is a folder named monaco-editor in node modules or not 
 // https://github.com/suren-atoyan/monaco-react/issues/169
@@ -29,8 +31,10 @@ export const CodeEditior = () => {
     const Code = useSelector((state) => state.SnippetData.Code);
     const LangType = useSelector((state) => state.SnippetData.LangType);
     const currentTheme = useSelector((state)=>state.SnippetData.theme)
-    const UniqueId = useSelector((state)=>state.SnippetData.UniqueId)
     const [currentCode,setCurrentCode] = useState(null);
+
+    const {UniqueId} = useParams();  
+    
     useEffect(() => {
         if (LangType !== null) setLanguageType(LangType);
         if (currentTheme !== null) setTheme(currentTheme);
@@ -59,6 +63,8 @@ export const CodeEditior = () => {
                 </html>`);
         }
     }, [LangType, currentTheme, Code]);   
+    
+   
 
     useEffect(()=>{
         if(UniqueId!==null && LangType===languageType && Code===currentCode && currentTheme===theme){
