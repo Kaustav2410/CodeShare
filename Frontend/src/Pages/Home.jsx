@@ -11,25 +11,28 @@ import { useParams } from 'react-router-dom';
 export const Home = () => {
   const isLoading = useSelector((state) => state.SnippetData.loading);
   const dispatch = useDispatch();
-  const {UniqueId} = useParams();  
+  const {UniqueId} = useParams();
   useEffect(()=>{
-    // console.log(UniqueId);
-    dispatch(fetchSnippet(UniqueId)) 
+    console.log(UniqueId);
+    // Only make a db call if the url has an unqiue id since using render(backend host provider) takes time to process in the backend upto 50 seconds
+    if(UniqueId!==undefined){
+        dispatch(fetchSnippet(UniqueId))
+    }
   },[UniqueId])
   return (
-    <div className='min-h-screen w-full'>
-      <img src={backsvg} className='fixed -z-10 w-full' fetchpriority="high"/>
+    <div className='w-full min-h-screen'>
+      <img src={backsvg} className='fixed w-full -z-10' fetchpriority="high"/>
 
         <Header/>
-        {isLoading ? ( 
+        {isLoading ? (
                 <Skeleton/>
             ) : (
                <CodeEditior/>
             )}
         <div className='bg-gradient-to-br from-violet to-dark_violet w-full h-[390px] fixed bottom-0 -z-10' >
-        <div className="absolute bottom- left-0 w-full h-3/6 bg-white rounded-b-full  ">
+        <div className="absolute left-0 w-full bg-white rounded-b-full bottom- h-3/6 ">
         </div>
-        </div>  
+        </div>
     </div>
   )
 }

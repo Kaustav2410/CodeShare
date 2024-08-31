@@ -2,7 +2,7 @@ import { createAsyncThunk,createSlice } from '@reduxjs/toolkit'
 // Add the necessary async logic inside a thunk function to handle the API call and data fetching. Thunk functions allow you to write async logic in Redux actions
 export const fetchSnippet = createAsyncThunk(
     '/',
-    async (UniqueId) => { 
+    async (UniqueId) => {
         try {
             const res = await fetch(`https://codeshare-7q0c.onrender.com/api/v1/${UniqueId}`,{
             method: "GET",
@@ -67,7 +67,7 @@ export const Snippet = createSlice({
         theme:null,
         UniqueId:null,
         error:false
-        
+
     },
     reducers:{
     },
@@ -80,22 +80,18 @@ export const Snippet = createSlice({
                 state.loading = true;
             })
             .addCase(fetchSnippet.fulfilled, (state, action) => {
-                // console.log(action.payload.SuccessResponse.data.length)
-                if(action.payload.SuccessResponse.data.length!=0){
+                console.log(action.payload.SuccessResponse.data.length)
+                if(action.payload.SuccessResponse.data.length!==0){
                     const {LanguageType,Code,theme,UniqueId}=action.payload.SuccessResponse.data[0]
                 state.loading=false;
                 state.Code=Code
                 state.LangType=LanguageType
                 state.theme = theme
                 state.UniqueId=UniqueId
-                // console.log(LanguageType,Code,theme)
+                console.log(state)
                 }
                 else{
-                    state.loading=false;
-                    state.Code=null
-                    state.LangType=null
-                    state.theme = null
-                    state.UniqueId=null
+                    state.error=true
                 }
             })
             .addCase(fetchSnippet.rejected, (state) => {
@@ -106,26 +102,23 @@ export const Snippet = createSlice({
                 state.loading = true;
             })
             .addCase(addSnippet.fulfilled, (state, action) => {
-                // console.log(action.payload.SuccessResponse)
-                if(action.payload.SuccessResponse!==undefined){
+                console.log("added snippet success response",action.payload.SuccessResponse)
+                if(action.payload.SuccessResponse.data.length>0){
                     const {Code,LanguageType,theme,UniqueId}=action.payload.SuccessResponse.data
                     console.log(action.payload.SuccessResponse.data)
-                    state.loading = false;
                     state.Code=Code
                     state.LangType=LanguageType
                     state.theme = theme
                     state.UniqueId=UniqueId
                     state.result = action.payload;
-                }
-                else {
-                    alert("Error in adding Snippet")
+                    state.loading = false;
                 }
                 // console.log(action.payload);
                 // console.log(UniqueId,state.UniqueId);
             })
             .addCase(addSnippet.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload;
+                state.error = action.error.message;
             })
             .addCase(updateSnippet.pending, (state) => {
                 state.loading = true;
